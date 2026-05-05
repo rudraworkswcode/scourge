@@ -1,204 +1,520 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthBot - Medication & Symptom Tracker</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body class="bg-slate-50 min-h-screen flex flex-col justify-between font-sans">
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Symptom Checker</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        .bot-link {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: #1a1a18;
+    color: #ffffff;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: transform 0.2s;
+    z-index: 1000;
+}
 
-    <nav class="bg-white shadow-sm py-4 px-6 border-b border-slate-100">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="bg-emerald-600 text-white p-2.5 rounded-xl shadow-sm">
-                    <i class="fa-solid fa-heart-pulse text-xl animate-pulse"></i>
-                </div>
-                <span class="text-xl font-bold text-slate-800 tracking-tight">HealthBot</span>
-            </div>
-            <span class="text-xs font-semibold tracking-wider bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200/50">
-                WhatsApp Automation
-            </span>
-        </div>
-    </nav>
+.bot-link:hover { transform: scale(1.1); }
 
-    <main class="max-w-4xl mx-auto w-full px-4 py-10 flex-grow">
-        
-        <div class="text-center mb-10">
-            <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
-                Setup Your <span class="text-emerald-600">WhatsApp HealthBot</span>
-            </h1>
-            <p class="text-base text-slate-500 max-w-2xl mx-auto leading-relaxed">
-                Provide your symptoms and medication schedule below. The automation bot will reach out via WhatsApp and phone calls to keep your health on track.
-            </p>
-        </div>
+/* Tooltip style */
+.bot-link::after {
+    content: "Message Bot";
+    position: absolute;
+    right: 70px;
+    background: #1a1a18;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
 
-        <div class="bg-white rounded-2xl shadow-2xl shadow-slate-200/80 border border-slate-100 p-8 md:p-10">
-            <form id="healthForm" class="space-y-8" onsubmit="handleSubmit(event)">
+.bot-link:hover::after { opacity: 1; }
+        body {
+        font-family: 'DM Sans', sans-serif;
+        background: #f5f4f0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        padding: 3rem 1rem;
+        color: #1a1a18;
+        }
 
-                <div class="border-b border-slate-100 pb-8">
-                    <h2 class="text-lg font-bold text-slate-800 flex items-center mb-6">
-                        <span class="bg-emerald-100 text-emerald-600 w-8 h-8 rounded-xl flex items-center justify-center text-sm mr-3">1</span>
-                        Patient Health Information
-                    </h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Current Disease or Symptoms</label>
-                            <input type="text" id="symptoms" required 
-                                   placeholder="e.g., Fever, cough, diarrhea" 
-                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Conditions or Allergies</label>
-                            <input type="text" id="allergies" 
-                                   placeholder="e.g., Allergic to iron-related medicines" 
-                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
-                        </div>
-                    </div>
-                </div>
+        .app {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 0.5px solid rgba(0,0,0,0.12);
+        padding: 2.5rem 2rem;
+        width: 100%;
+        max-width: 680px;
+        height: fit-content;
+        }
 
-                <div class="border-b border-slate-100 pb-8">
-                    <h2 class="text-lg font-bold text-slate-800 flex items-center mb-6">
-                        <span class="bg-emerald-100 text-emerald-600 w-8 h-8 rounded-xl flex items-center justify-center text-sm mr-3">2</span>
-                        Contact Numbers
-                    </h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">WhatsApp Number</label>
-                            <div class="relative">
-                                <span class="absolute left-4 top-3.5 text-slate-400 font-medium">+</span>
-                                <input type="tel" id="whatsapp" required placeholder="1234567890"
-                                       class="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Emergency Contact Number</label>
-                            <div class="relative">
-                                <span class="absolute left-4 top-3.5 text-slate-400 font-medium">+</span>
-                                <input type="tel" id="emergency" required placeholder="0987654321"
-                                       class="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        .app-title {
+        font-family: 'DM Serif Display', serif;
+        font-size: 32px;
+        font-weight: 400;
+        color: #1a1a18;
+        margin-bottom: 4px;
+        }
 
-                <div>
-                    <h2 class="text-lg font-bold text-slate-800 flex items-center mb-6 justify-between">
-                        <span class="flex items-center">
-                            <span class="bg-emerald-100 text-emerald-600 w-8 h-8 rounded-xl flex items-center justify-center text-sm mr-3">3</span>
-                            Medication Details
-                        </span>
-                        <button type="button" onclick="addMedicationEntry()" class="text-xs text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl transition border border-emerald-200/50">
-                            <i class="fa-solid fa-plus mr-1"></i> Add Another Medicine
-                        </button>
-                    </h2>
+        .app-sub {
+        font-size: 13px;
+        color: #6b6b68;
+        margin-bottom: 2rem;
+        font-weight: 300;
+        }
 
-                    <div id="medicationEntries" class="space-y-6">
-                        <div class="med-entry p-6 bg-slate-50/80 rounded-2xl border border-slate-200/60 relative">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div>
-                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Medicine Name</label>
-                                    <input type="text" name="medName" required placeholder="e.g., Paracetamol"
-                                           class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Frequency (Times per day)</label>
-                                    <input type="number" name="frequency" min="1" max="12" required placeholder="e.g., 3"
-                                           class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Time of the day</label>
-                                    <input type="time" name="time" required
-                                           class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        .input-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+        }
 
-                <div class="pt-6 border-t border-slate-100 flex justify-end">
-                    <button type="submit" class="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl shadow-lg shadow-emerald-600/20 active:scale-98 transition-all duration-200">
-                        Activate Bot System <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
-                    </button>
-                </div>
+        .symptom-input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 0.5px solid rgba(0,0,0,0.25);
+        border-radius: 8px;
+        background: #fff;
+        color: #1a1a18;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.15s;
+        }
 
-            </form>
-        </div>
-    </main>
+        .symptom-input:focus { border-color: rgba(0,0,0,0.5); }
 
-    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs tracking-wide text-slate-400">
-        &copy; 2026 HealthBot. Keeping your health on schedule.
-    </footer>
+        .add-btn {
+        padding: 10px 18px;
+        border: 0.5px solid rgba(0,0,0,0.25);
+        border-radius: 8px;
+        background: transparent;
+        color: #1a1a18;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.15s;
+        white-space: nowrap;
+        }
+
+        .add-btn:hover { background: #f5f4f0; }
+
+        .tags-area {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        min-height: 32px;
+        margin-bottom: 1rem;
+        }
+
+        .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        background: #f5f4f0;
+        border: 0.5px solid rgba(0,0,0,0.12);
+        border-radius: 999px;
+        font-size: 13px;
+        color: #1a1a18;
+        }
+
+        .tag-remove {
+        cursor: pointer;
+        color: #6b6b68;
+        font-size: 15px;
+        line-height: 1;
+        }
+
+        .tag-remove:hover { color: #1a1a18; }
+
+        .quick-label {
+        font-size: 12px;
+        color: #6b6b68;
+        margin-bottom: 6px;
+        }
+
+        .quick-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 1.5rem;
+        }
+
+        .chip {
+        padding: 4px 10px;
+        border: 0.5px solid rgba(0,0,0,0.15);
+        border-radius: 999px;
+        font-size: 12px;
+        color: #6b6b68;
+        cursor: pointer;
+        background: transparent;
+        font-family: 'DM Sans', sans-serif;
+        transition: all 0.15s;
+        }
+
+        .chip:hover {
+        border-color: rgba(0,0,0,0.4);
+        color: #1a1a18;
+        background: #f5f4f0;
+        }
+
+        .diagnose-btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        background: #1a1a18;
+        color: #ffffff;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: opacity 0.15s;
+        margin-bottom: 2rem;
+        }
+
+        .diagnose-btn:hover { opacity: 0.85; }
+        .diagnose-btn:disabled { opacity: 0.4; cursor: default; }
+
+        .divider {
+        border: none;
+        border-top: 0.5px solid rgba(0,0,0,0.12);
+        margin-bottom: 1.5rem;
+        }
+
+        .results-title {
+        font-family: 'DM Serif Display', serif;
+        font-size: 20px;
+        font-weight: 400;
+        color: #1a1a18;
+        margin-bottom: 1rem;
+        }
+
+        .no-results {
+        font-size: 14px;
+        color: #6b6b68;
+        padding: 1rem;
+        text-align: center;
+        }
+
+        .disease-card {
+        background: #ffffff;
+        border: 0.5px solid rgba(0,0,0,0.12);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: border-color 0.15s;
+        }
+
+        .disease-card:hover { border-color: rgba(0,0,0,0.25); }
+        .disease-card.expanded { border-color: rgba(0,0,0,0.4); }
+
+        .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        }
+
+        .card-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        }
+
+        .card-name {
+        font-size: 15px;
+        font-weight: 500;
+        color: #1a1a18;
+        }
+
+        .card-cat {
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-weight: 400;
+        }
+
+        .cat-Respiratory    { background: #E6F1FB; color: #0C447C; }
+        .cat-Digestive      { background: #EAF3DE; color: #27500A; }
+        .cat-Infectious     { background: #FAEEDA; color: #633806; }
+        .cat-Dermatological { background: #FBEAF0; color: #72243E; }
+        .cat-Neurological   { background: #EEEDFE; color: #3C3489; }
+        .cat-Endocrine      { background: #E1F5EE; color: #085041; }
+        .cat-Cardiovascular { background: #FCEBEB; color: #791F1F; }
+        .cat-Other          { background: #F1EFE8; color: #444441; }
+
+        .score-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        }
+
+        .score-dots { display: flex; gap: 3px; }
+
+        .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.15);
+        }
+
+        .dot.filled { background: #1a1a18; }
+
+        .expand-icon {
+        font-size: 12px;
+        color: #6b6b68;
+        margin-left: 4px;
+        }
+
+        .card-body {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 0.5px solid rgba(0,0,0,0.1);
+        display: none;
+        }
+
+        .card-body.open { display: block; }
+
+        .detail-label {
+        font-size: 11px;
+        font-weight: 500;
+        color: #6b6b68;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 4px;
+        margin-top: 10px;
+        }
+
+        .detail-label:first-child { margin-top: 0; }
+
+        .detail-text {
+        font-size: 13px;
+        color: #1a1a18;
+        line-height: 1.6;
+        }
+
+        .med-pill {
+        display: inline-block;
+        padding: 3px 8px;
+        background: #f5f4f0;
+        border: 0.5px solid rgba(0,0,0,0.12);
+        border-radius: 999px;
+        font-size: 12px;
+        color: #1a1a18;
+        margin: 2px 2px 2px 0;
+        }
+
+        .disclaimer {
+        font-size: 11px;
+        color: #6b6b68;
+        border-top: 0.5px solid rgba(0,0,0,0.1);
+        padding-top: 1rem;
+        margin-top: 1.5rem;
+        line-height: 1.6;
+        }
+
+        @media (max-width: 500px) {
+        .app { padding: 1.5rem 1rem; }
+        .app-title { font-size: 26px; }
+        }
+    </style>
+    </head>
+    <body>
+
+    <div class="app">
+    <p class="app-title">Symptom Checker</p>
+    <p class="app-sub">Enter your symptoms to see possible conditions and suggested medications.</p>
+
+    <div class="input-row">
+        <input class="symptom-input" id="symInput" type="text" placeholder="Type a symptom, e.g. fever, headache…" />
+        <button class="add-btn" onclick="addSymptom()">+ Add</button>
+    </div>
+
+    <div class="tags-area" id="tagsArea"></div>
+
+    <p class="quick-label">Common symptoms</p>
+    <div class="quick-chips" id="quickChips"></div>
+
+    <button class="diagnose-btn" id="diagnoseBtn" onclick="runDiagnosis()" disabled>Analyse symptoms</button>
+
+    <div id="resultsSection" style="display:none;">
+        <hr class="divider" />
+        <p class="results-title" id="resultsTitle">Possible conditions</p>
+        <div id="resultsList"></div>
+        <p class="disclaimer">This tool is for informational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional for diagnosis and treatment.</p>
+    </div>
+    </div>
 
     <script>
-        function addMedicationEntry() {
-            const container = document.getElementById('medicationEntries');
-            
-            const entry = document.createElement('div');
-            entry.className = 'med-entry p-6 bg-slate-50/80 rounded-2xl border border-slate-200/60 relative animate-fade-in';
-            entry.innerHTML = `
-                <button type="button" onclick="removeEntry(this)" class="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition">
-                    <i class="fa-solid fa-trash-can text-sm"></i>
-                </button>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Medicine Name</label>
-                        <input type="text" name="medName" required placeholder="e.g., Antibiotic"
-                               class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Frequency (Times per day)</label>
-                        <input type="number" name="frequency" min="1" max="12" required placeholder="e.g., 2"
-                               class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Time of the day</label>
-                        <input type="time" name="time" required
-                               class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
-                    </div>
+    const DB = {
+    "Common Cold":        { med: "Pseudoephedrine / Cetirizine",            symp: "Stuffy nose, sneezing, scratchy throat, and a mild cough.",                          cat: "Respiratory",    keywords: ["stuffy nose","sneezing","scratchy throat","mild cough"] },
+    "Influenza (Flu)":    { med: "Oseltamivir (Tamiflu) / Acetaminophen",   symp: "High fever, body aches, extreme fatigue, and dry cough.",                           cat: "Respiratory",    keywords: ["high fever","body aches","extreme fatigue","dry cough","fever"] },
+    "Bronchitis":         { med: "Guaifenesin / Bromhexine",                 symp: "Persistent cough with clear or yellow phlegm and chest discomfort.",                cat: "Respiratory",    keywords: ["persistent cough","phlegm","chest discomfort","cough"] },
+    "Asthma":             { med: "Albuterol / Fluticasone",                  symp: "Shortness of breath, wheezing sounds, and chest tightness.",                        cat: "Respiratory",    keywords: ["shortness of breath","wheezing","chest tightness"] },
+    "Pneumonia":          { med: "Amoxicillin / Azithromycin",               symp: "Deep cough, fever, chills, and difficulty breathing.",                              cat: "Respiratory",    keywords: ["deep cough","fever","chills","difficulty breathing","cough"] },
+    "Sinusitis":          { med: "Fluticasone Propionate / Oxymetazoline",   symp: "Pressure behind the eyes, thick nasal discharge, and facial pain.",                 cat: "Respiratory",    keywords: ["pressure behind eyes","nasal discharge","facial pain","headache"] },
+    "GERD (Acid Reflux)": { med: "Omeprazole / Antacids",                    symp: "Heartburn after eating and a sour or bitter taste in the mouth.",                   cat: "Digestive",      keywords: ["heartburn","sour taste","bitter taste","nausea"] },
+    "Gastroenteritis":    { med: "Oral Rehydration Salts / Ondansetron",     symp: "Stomach cramps, watery diarrhea, and occasional vomiting.",                         cat: "Digestive",      keywords: ["stomach cramps","watery diarrhea","vomiting","nausea"] },
+    "Peptic Ulcer":       { med: "Famotidine / Clarithromycin",              symp: "Burning stomach pain, feeling bloated, and intolerance to fatty foods.",             cat: "Digestive",      keywords: ["burning stomach pain","bloated","fatty food intolerance","nausea"] },
+    "Irritable Bowel (IBS)": { med: "Hyoscyamine / Psyllium Husk",          symp: "Abdominal bloating, gas, and alternating constipation or diarrhea.",                 cat: "Digestive",      keywords: ["bloating","gas","constipation","diarrhea","stomach cramps"] },
+    "Hepatitis":          { med: "Tenofovir / Interferon",                   symp: "Yellowish skin or eyes, dark urine, and intense fatigue.",                          cat: "Digestive",      keywords: ["yellow skin","yellow eyes","dark urine","fatigue","nausea"] },
+    "Tuberculosis":       { med: "Rifampin / Isoniazid",                     symp: "Chronic cough with blood, night sweats, and weight loss.",                          cat: "Infectious",     keywords: ["chronic cough","blood in cough","night sweats","weight loss","cough","fatigue"] },
+    "Dengue":             { med: "Acetaminophen (Paracetamol)",              symp: "Severe pain behind the eyes, high fever, and joint aches.",                         cat: "Infectious",     keywords: ["pain behind eyes","high fever","joint aches","fever","rash"] },
+    "Malaria":            { med: "Artemether / Lumefantrine",                 symp: "Cyclical high fever, shaking chills, and profuse sweating.",                        cat: "Infectious",     keywords: ["cyclical fever","shaking chills","sweating","fever","fatigue"] },
+    "Typhoid":            { med: "Ciprofloxacin / Ceftriaxone",              symp: "Sustained high fever, weakness, stomach pain, and headache.",                       cat: "Infectious",     keywords: ["sustained fever","weakness","stomach pain","headache","fever","fatigue"] },
+    "Chickenpox":         { med: "Diphenhydramine / Acyclovir",              symp: "Itchy red blisters all over the body accompanied by a fever.",                      cat: "Infectious",     keywords: ["itchy blisters","red spots","fever","rash"] },
+    "Eczema":             { med: "Hydrocortisone / Emollients",              symp: "Patches of skin that are dry, cracked, and extremely itchy.",                       cat: "Dermatological", keywords: ["dry skin","cracked skin","itchy skin","rash"] },
+    "Psoriasis":          { med: "Tazarotene / Calcipotriene",               symp: "Red patches of skin covered with thick, silvery scales.",                           cat: "Dermatological", keywords: ["red patches","silvery scales","rash"] },
+    "Acne Vulgaris":      { med: "Adapalene / Benzoyl Peroxide",             symp: "Persistent pimples, blackheads, and oily skin on the face or back.",                cat: "Dermatological", keywords: ["pimples","blackheads","oily skin","rash"] },
+    "Migraine":           { med: "Sumatriptan / Naproxen",                   symp: "Throbbing headache on one side with light and sound sensitivity.",                  cat: "Neurological",   keywords: ["throbbing headache","light sensitivity","sound sensitivity","nausea","headache","dizziness"] },
+    "Epilepsy":           { med: "Levetiracetam / Valproate",                symp: "Temporary confusion, staring spells, or uncontrollable jerking movements.",         cat: "Neurological",   keywords: ["confusion","staring spells","jerking movements"] },
+    "Vertigo":            { med: "Meclizine / Betahistine",                  symp: "A sensation that the room is spinning, causing loss of balance.",                   cat: "Neurological",   keywords: ["spinning sensation","loss of balance","dizziness","nausea"] },
+    "Diabetes Type 2":    { med: "Metformin / Insulin",                      symp: "Constant thirst, frequent urination, and blurred vision.",                          cat: "Endocrine",      keywords: ["thirst","frequent urination","blurred vision","fatigue"] },
+    "Hypothyroidism":     { med: "Levothyroxine",                            symp: "Feeling cold all the time, weight gain, and thinning hair.",                        cat: "Endocrine",      keywords: ["feeling cold","weight gain","thinning hair","fatigue"] },
+    "Hyperthyroidism":    { med: "Methimazole / Propylthiouracil",           symp: "Rapid heartbeat, sudden weight loss, and tremors in the hands.",                    cat: "Endocrine",      keywords: ["rapid heartbeat","weight loss","tremors"] },
+    "Hypertension":       { med: "Lisinopril / Atenolol",                    symp: "Frequent morning headaches, nosebleeds, and irregular heart rhythms.",              cat: "Cardiovascular", keywords: ["morning headaches","nosebleeds","irregular heart rhythm","headache","dizziness"] },
+    "Angina":             { med: "Nitroglycerin / Amlodipine",               symp: "Squeezing pain or pressure in the chest during physical activity.",                 cat: "Cardiovascular", keywords: ["chest pressure","chest pain during activity","chest pain","shortness of breath"] },
+    "UTI":                { med: "Nitrofurantoin / Phenazopyridine",         symp: "Burning sensation when peeing and a constant urge to go.",                          cat: "Other",          keywords: ["burning urination","constant urge to pee","fever"] },
+    "Anemia":             { med: "Ferrous Sulfate / B12",                    symp: "Pale skin, shortness of breath, and feeling cold or dizzy.",                        cat: "Other",          keywords: ["pale skin","shortness of breath","dizziness","fatigue"] },
+    "Conjunctivitis":     { med: "Moxifloxacin / Olopatadine",              symp: "Redness in the white of the eye, itching, and crusty discharge.",                   cat: "Other",          keywords: ["red eyes","itchy eyes","crusty discharge"] }
+    };
+
+    const QUICK = ["fever","cough","headache","fatigue","nausea","dizziness","chest pain","shortness of breath","rash","vomiting"];
+
+    let symptoms = [];
+
+    function init() {
+    const qc = document.getElementById('quickChips');
+    QUICK.forEach(s => {
+        const b = document.createElement('button');
+        b.className = 'chip';
+        b.textContent = s;
+        b.onclick = () => { document.getElementById('symInput').value = s; addSymptom(); };
+        qc.appendChild(b);
+    });
+    document.getElementById('symInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') addSymptom();
+    });
+    }
+
+    function addSymptom() {
+    const inp = document.getElementById('symInput');
+    const val = inp.value.trim().toLowerCase();
+    if (!val || symptoms.includes(val)) { inp.value = ''; return; }
+    symptoms.push(val);
+    inp.value = '';
+    renderTags();
+    document.getElementById('diagnoseBtn').disabled = false;
+    document.getElementById('resultsSection').style.display = 'none';
+    }
+
+    function removeSymptom(s) {
+    symptoms = symptoms.filter(x => x !== s);
+    renderTags();
+    document.getElementById('diagnoseBtn').disabled = symptoms.length === 0;
+    document.getElementById('resultsSection').style.display = 'none';
+    }
+
+    function renderTags() {
+    const area = document.getElementById('tagsArea');
+    area.innerHTML = symptoms.map(s =>
+        `<span class="tag">${s}<span class="tag-remove" onclick="removeSymptom('${s.replace(/'/g,"\\'")}')">×</span></span>`
+    ).join('');
+    }
+
+    function score() {
+    const scores = {};
+    symptoms.forEach(sym => {
+        Object.entries(DB).forEach(([disease, info]) => {
+        const allText = [...info.keywords, info.symp].join(' ').toLowerCase();
+        if (allText.includes(sym)) {
+            scores[disease] = (scores[disease] || 0) + 1;
+        }
+        });
+    });
+    return Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    }
+
+    function runDiagnosis() {
+    const results = score();
+    const max = symptoms.length;
+    const list = document.getElementById('resultsList');
+    const title = document.getElementById('resultsTitle');
+
+    if (results.length === 0) {
+        list.innerHTML = '<p class="no-results">No matching conditions found. Try different or more specific symptoms.</p>';
+    } else {
+        title.textContent = `${results.length} possible condition${results.length !== 1 ? 's' : ''} found`;
+        list.innerHTML = results.map(([name, sc]) => {
+        const info = DB[name];
+        const meds = info.med.split('/').map(m => `<span class="med-pill">${m.trim()}</span>`).join('');
+        const dotCount = Math.min(max, 5);
+        const dots = Array.from({ length: dotCount }, (_, i) =>
+            `<span class="dot${i < sc ? ' filled' : ''}"></span>`
+        ).join('');
+        const key = name.replace(/[^a-z0-9]/gi, '_');
+        return `
+            <div class="disease-card" id="card-${key}" onclick="toggleCard('${name.replace(/'/g,"\\'")}')">
+            <div class="card-header">
+                <div class="card-left">
+                <span class="card-name">${name}</span>
+                <span class="card-cat cat-${info.cat}">${info.cat}</span>
                 </div>
-            `;
-            container.appendChild(entry);
-        }
+                <div class="score-badge">
+                <div class="score-dots">${dots}</div>
+                <span class="expand-icon" id="icon-${key}">&#9656;</span>
+                </div>
+            </div>
+            <div class="card-body" id="body-${key}">
+                <p class="detail-label">Symptoms</p>
+                <p class="detail-text">${info.symp}</p>
+                <p class="detail-label">Suggested medications</p>
+                <p>${meds}</p>
+                <p class="detail-text" style="margin-top:6px;font-size:12px;color:#6b6b68;">Consult a doctor before taking any medication.</p>
+            </div>
+            </div>`;
+        }).join('');
+    }
+    document.getElementById('resultsSection').style.display = 'block';
+    }
 
-        function removeEntry(button) {
-            const entry = button.parentElement;
-            entry.remove();
-        }
+    function toggleCard(name) {
+    const key = name.replace(/[^a-z0-9]/gi, '_');
+    const body = document.getElementById('body-' + key);
+    const icon = document.getElementById('icon-' + key);
+    const card = document.getElementById('card-' + key);
+    const isOpen = body.classList.contains('open');
+    document.querySelectorAll('.card-body.open').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.expand-icon').forEach(el => el.innerHTML = '&#9656;');
+    document.querySelectorAll('.disease-card.expanded').forEach(el => el.classList.remove('expanded'));
+    if (!isOpen) {
+        body.classList.add('open');
+        icon.innerHTML = '&#9662;';
+        card.classList.add('expanded');
+    }
+    }
 
-        function handleSubmit(event) {
-            event.preventDefault();
-            
-            // Gather the form data
-            const symptoms = document.getElementById('symptoms').value;
-            const allergies = document.getElementById('allergies').value || 'None';
-            const whatsapp = document.getElementById('whatsapp').value;
-            const emergency = document.getElementById('emergency').value;
-
-            // Gather all medication rows
-            const medEntries = [];
-            document.querySelectorAll('.med-entry').forEach((row) => {
-                const inputs = row.querySelectorAll('input');
-                medEntries.push({
-                    medicine: inputs[0].value,
-                    frequency: inputs[1].value,
-                    time: inputs[2].value
-                });
-            });
-
-            console.log('Form Submitted Successfully:', {
-                symptoms,
-                allergies,
-                whatsapp,
-                emergency,
-                medications: medEntries
-            });
-
-            alert('Bot successfully activated! The data was logged to the console.');
-        }
+    init();
     </script>
-</body>
-</html>
+    </body>
+    </html>
