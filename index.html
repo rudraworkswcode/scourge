@@ -3,96 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Symptom Checker & Reminder</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>HealthBot - Medication & Symptom Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans p-6">
+<body class="bg-slate-50 min-h-screen flex flex-col justify-between font-sans">
 
-    <div class="max-w-4xl mx-auto space-y-8">
+    <nav class="bg-white shadow-sm py-4 px-6 border-b border-slate-100">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-600 text-white p-2.5 rounded-xl shadow-sm">
+                    <i class="fa-solid fa-heart-pulse text-xl animate-pulse"></i>
+                </div>
+                <span class="text-xl font-bold text-slate-800 tracking-tight">HealthBot</span>
+            </div>
+            <span class="text-xs font-semibold tracking-wider bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200/50">
+                WhatsApp Automation
+            </span>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto w-full px-4 py-10 flex-grow">
         
-        <!-- Header & Disclaimer -->
-        <header class="text-center">
-            <h1 class="text-3xl font-bold border-b-2 border-blue-500 inline-block pb-2">Medical Assistant Prototype</h1>
-            <p class="mt-4 text-red-600 font-semibold text-sm">DISCLAIMER: For informational purposes only. Seek professional medical advice immediately.</p>
-        </header>
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
+                Setup Your <span class="text-emerald-600">WhatsApp HealthBot</span>
+            </h1>
+            <p class="text-base text-slate-500 max-w-2xl mx-auto leading-relaxed">
+                Provide your symptoms and medication schedule below. The automation bot will reach out via WhatsApp and phone calls to keep your health on track.
+            </p>
+        </div>
 
-        <div class="grid md:grid-cols-2 gap-8">
-            
-            <!-- Block 1: Symptom Checker -->
-            <section class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-                <h2 class="text-xl font-bold mb-4 text-blue-700">1. Symptom Checker</h2>
-                <div class="space-y-4">
-                    <input type="text" id="symptomInput" placeholder="Describe your symptoms..." 
-                        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                    <button onclick="checkSymptoms()" 
-                        class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">
-                        Identify Medicine
-                    </button>
-                    <div id="results" class="mt-4 p-4 rounded-lg hidden bg-blue-50">
-                        <!-- Results injected here -->
+        <div class="bg-white rounded-2xl shadow-2xl shadow-slate-200/80 border border-slate-100 p-8 md:p-10">
+            <form id="healthForm" class="space-y-8" onsubmit="handleSubmit(event)">
+
+                <div class="border-b border-slate-100 pb-8">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center mb-6">
+                        <span class="bg-emerald-100 text-emerald-600 w-8 h-8 rounded-xl flex items-center justify-center text-sm mr-3">1</span>
+                        Patient Health Information
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Current Disease or Symptoms</label>
+                            <input type="text" id="symptoms" required 
+                                   placeholder="e.g., Fever, cough, diarrhea" 
+                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Conditions or Allergies</label>
+                            <input type="text" id="allergies" 
+                                   placeholder="e.g., Allergic to iron-related medicines" 
+                                   class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
+                        </div>
                     </div>
                 </div>
-            </section>
 
-            <!-- Block 2: WhatsApp Reminder -->
-            <section class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-                <h2 class="text-xl font-bold mb-4 text-green-700">2. WhatsApp Reminder</h2>
-                <p class="text-sm text-gray-600 mb-4">Set a reminder to take your medication via WhatsApp.</p>
-                <div class="space-y-4">
-                    <input type="text" id="medName" placeholder="Medicine Name" class="w-full p-3 border rounded-lg">
-                    <input type="time" id="remindTime" class="w-full p-3 border rounded-lg">
-                    <button onclick="setReminder()" 
-                        class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">
-                        Schedule via WhatsApp
+                <div class="border-b border-slate-100 pb-8">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center mb-6">
+                        <span class="bg-emerald-100 text-emerald-600 w-8 h-8 rounded-xl flex items-center justify-center text-sm mr-3">2</span>
+                        Contact Numbers
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">WhatsApp Number</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-3.5 text-slate-400 font-medium">+</span>
+                                <input type="tel" id="whatsapp" required placeholder="1234567890"
+                                       class="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Emergency Contact Number</label>
+                            <div class="relative">
+                                <span class="absolute left-4 top-3.5 text-slate-400 font-medium">+</span>
+                                <input type="tel" id="emergency" required placeholder="0987654321"
+                                       class="w-full pl-8 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center mb-6 justify-between">
+                        <span class="flex items-center">
+                            <span class="bg-emerald-100 text-emerald-600 w-8 h-8 rounded-xl flex items-center justify-center text-sm mr-3">3</span>
+                            Medication Details
+                        </span>
+                        <button type="button" onclick="addMedicationEntry()" class="text-xs text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl transition border border-emerald-200/50">
+                            <i class="fa-solid fa-plus mr-1"></i> Add Another Medicine
+                        </button>
+                    </h2>
+
+                    <div id="medicationEntries" class="space-y-6">
+                        <div class="med-entry p-6 bg-slate-50/80 rounded-2xl border border-slate-200/60 relative">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Medicine Name</label>
+                                    <input type="text" name="medName" required placeholder="e.g., Paracetamol"
+                                           class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Frequency (Times per day)</label>
+                                    <input type="number" name="frequency" min="1" max="12" required placeholder="e.g., 3"
+                                           class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Time of the day</label>
+                                    <input type="time" name="time" required
+                                           class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-slate-100 flex justify-end">
+                    <button type="submit" class="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl shadow-lg shadow-emerald-600/20 active:scale-98 transition-all duration-200">
+                        Activate Bot System <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
                     </button>
                 </div>
-            </section>
 
+            </form>
         </div>
-    </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-100 py-6 text-center text-xs tracking-wide text-slate-400">
+        &copy; 2026 HealthBot. Keeping your health on schedule.
+    </footer>
 
     <script>
-        // Fetch data from your GitHub JSON
-        async function checkSymptoms() {
-            const query = document.getElementById('symptomInput').value.toLowerCase();
-            const resultDiv = document.getElementById('results');
+        function addMedicationEntry() {
+            const container = document.getElementById('medicationEntries');
             
-            if (!query) return;
-
-            try {
-                // Ensure data.json is in your repo and deployed to Vercel
-                const response = await fetch('./data.json');
-                const data = await response.json();
-                
-                // Simple search logic using 'text' column from your CSV
-                const match = data.find(item => item.text.toLowerCase().includes(query));
-
-                resultDiv.classList.remove('hidden');
-                if (match) {
-                    resultDiv.innerHTML = `
-                        <p class="text-xs uppercase font-bold text-blue-500">Suggested Identification</p>
-                        <h3 class="text-lg font-bold">${match.label}</h3>
-                        <p class="text-sm mt-2 text-gray-700">${match.text}</p>
-                    `;
-                } else {
-                    resultDiv.innerHTML = `<p class="text-sm text-gray-500 italic">No specific match found. Please consult a doctor.</p>`;
-                }
-            } catch (err) {
-                console.error("Data fetch error:", err);
-                resultDiv.innerHTML = `<p class="text-red-500 text-xs">Error loading database.</p>`;
-            }
+            const entry = document.createElement('div');
+            entry.className = 'med-entry p-6 bg-slate-50/80 rounded-2xl border border-slate-200/60 relative animate-fade-in';
+            entry.innerHTML = `
+                <button type="button" onclick="removeEntry(this)" class="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition">
+                    <i class="fa-solid fa-trash-can text-sm"></i>
+                </button>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Medicine Name</label>
+                        <input type="text" name="medName" required placeholder="e.g., Antibiotic"
+                               class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Frequency (Times per day)</label>
+                        <input type="number" name="frequency" min="1" max="12" required placeholder="e.g., 2"
+                               class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Time of the day</label>
+                        <input type="time" name="time" required
+                               class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-500/15 focus:border-emerald-500 outline-none transition-all duration-200">
+                    </div>
+                </div>
+            `;
+            container.appendChild(entry);
         }
 
-        function setReminder() {
-            const med = document.getElementById('medName').value;
-            const time = document.getElementById('remindTime').value;
-            if (!med || !time) return alert("Fill in details");
+        function removeEntry(button) {
+            const entry = button.parentElement;
+            entry.remove();
+        }
 
-            const message = `Reminder: Please take your ${med} at ${time}.`;
-            const encodedMsg = encodeURIComponent(message);
+        function handleSubmit(event) {
+            event.preventDefault();
             
-            // Opens WhatsApp with a pre-filled message
-            window.open(`https://wa.me/?text=${encodedMsg}`, '_blank');
+            // Gather the form data
+            const symptoms = document.getElementById('symptoms').value;
+            const allergies = document.getElementById('allergies').value || 'None';
+            const whatsapp = document.getElementById('whatsapp').value;
+            const emergency = document.getElementById('emergency').value;
+
+            // Gather all medication rows
+            const medEntries = [];
+            document.querySelectorAll('.med-entry').forEach((row) => {
+                const inputs = row.querySelectorAll('input');
+                medEntries.push({
+                    medicine: inputs[0].value,
+                    frequency: inputs[1].value,
+                    time: inputs[2].value
+                });
+            });
+
+            console.log('Form Submitted Successfully:', {
+                symptoms,
+                allergies,
+                whatsapp,
+                emergency,
+                medications: medEntries
+            });
+
+            alert('Bot successfully activated! The data was logged to the console.');
         }
     </script>
 </body>
