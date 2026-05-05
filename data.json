@@ -1,0 +1,336 @@
+[
+    {
+        "label": "Common Cold",
+        "category": "Respiratory",
+        "symptoms": [
+            "stuffy nose",
+            "sneezing",
+            "scratchy throat",
+            "mild cough"
+        ],
+        "med": "Pseudoephedrine / Cetirizine",
+        "text": "Common symptoms: stuffy nose, sneezing, scratchy throat, mild cough."
+    },
+    {
+        "label": "Influenza (Flu)",
+        "category": "Respiratory",
+        "symptoms": [
+            "high fever",
+            "body aches",
+            "extreme fatigue",
+            "dry cough"
+        ],
+        "med": "Oseltamivir (Tamiflu) / Acetaminophen",
+        "text": "Common symptoms: high fever, body aches, extreme fatigue, dry cough."
+    },
+    {
+        "label": "Bronchitis",
+        "category": "Respiratory",
+        "symptoms": [
+            "persistent cough",
+            "phlegm",
+            "chest discomfort"
+        ],
+        "med": "Guaifenesin / Bromhexine",
+        "text": "Common symptoms: persistent cough, phlegm, chest discomfort."
+    },
+    {
+        "label": "Asthma",
+        "category": "Respiratory",
+        "symptoms": [
+            "shortness of breath",
+            "wheezing",
+            "chest tightness"
+        ],
+        "med": "Albuterol / Fluticasone",
+        "text": "Common symptoms: shortness of breath, wheezing, chest tightness."
+    },
+    {
+        "label": "Pneumonia",
+        "category": "Respiratory",
+        "symptoms": [
+            "deep cough",
+            "fever",
+            "chills",
+            "difficulty breathing"
+        ],
+        "med": "Amoxicillin / Azithromycin",
+        "text": "Common symptoms: deep cough, fever, chills, difficulty breathing."
+    },
+    {
+        "label": "Sinusitis",
+        "category": "Respiratory",
+        "symptoms": [
+            "pressure behind eyes",
+            "nasal discharge",
+            "facial pain"
+        ],
+        "med": "Fluticasone Propionate / Oxymetazoline",
+        "text": "Common symptoms: pressure behind eyes, nasal discharge, facial pain."
+    },
+    {
+        "label": "GERD (Acid Reflux)",
+        "category": "Digestive",
+        "symptoms": [
+            "heartburn",
+            "sour taste",
+            "bitter taste"
+        ],
+        "med": "Omeprazole / Antacids",
+        "text": "Common symptoms: heartburn, sour taste, bitter taste."
+    },
+    {
+        "label": "Gastroenteritis",
+        "category": "Digestive",
+        "symptoms": [
+            "stomach cramps",
+            "watery diarrhea",
+            "vomiting"
+        ],
+        "med": "Oral Rehydration Salts / Ondansetron",
+        "text": "Common symptoms: stomach cramps, watery diarrhea, vomiting."
+    },
+    {
+        "label": "Peptic Ulcer",
+        "category": "Digestive",
+        "symptoms": [
+            "burning stomach pain",
+            "bloated",
+            "fatty food intolerance"
+        ],
+        "med": "Famotidine / Clarithromycin",
+        "text": "Common symptoms: burning stomach pain, bloated, fatty food intolerance."
+    },
+    {
+        "label": "Irritable Bowel (IBS)",
+        "category": "Digestive",
+        "symptoms": [
+            "bloating",
+            "gas",
+            "constipation",
+            "diarrhea"
+        ],
+        "med": "Hyoscyamine / Psyllium Husk",
+        "text": "Common symptoms: bloating, gas, constipation, diarrhea."
+    },
+    {
+        "label": "Hepatitis",
+        "category": "Digestive",
+        "symptoms": [
+            "yellow skin",
+            "yellow eyes",
+            "dark urine",
+            "fatigue"
+        ],
+        "med": "Tenofovir / Interferon",
+        "text": "Common symptoms: yellow skin, yellow eyes, dark urine, fatigue."
+    },
+    {
+        "label": "Tuberculosis",
+        "category": "Infectious",
+        "symptoms": [
+            "chronic cough",
+            "blood in cough",
+            "night sweats",
+            "weight loss"
+        ],
+        "med": "Rifampin / Isoniazid",
+        "text": "Common symptoms: chronic cough, blood in cough, night sweats, weight loss."
+    },
+    {
+        "label": "Dengue",
+        "category": "Infectious",
+        "symptoms": [
+            "pain behind eyes",
+            "high fever",
+            "joint aches"
+        ],
+        "med": "Acetaminophen (Paracetamol)",
+        "text": "Common symptoms: pain behind eyes, high fever, joint aches."
+    },
+    {
+        "label": "Malaria",
+        "category": "Infectious",
+        "symptoms": [
+            "cyclical fever",
+            "shaking chills",
+            "sweating"
+        ],
+        "med": "Artemether / Lumefantrine",
+        "text": "Common symptoms: cyclical fever, shaking chills, sweating."
+    },
+    {
+        "label": "Typhoid",
+        "category": "Infectious",
+        "symptoms": [
+            "sustained fever",
+            "weakness",
+            "stomach pain",
+            "headache"
+        ],
+        "med": "Ciprofloxacin / Ceftriaxone",
+        "text": "Common symptoms: sustained fever, weakness, stomach pain, headache."
+    },
+    {
+        "label": "Chickenpox",
+        "category": "Infectious",
+        "symptoms": [
+            "itchy blisters",
+            "red spots",
+            "fever"
+        ],
+        "med": "Diphenhydramine / Acyclovir",
+        "text": "Common symptoms: itchy blisters, red spots, fever."
+    },
+    {
+        "label": "Eczema",
+        "category": "Dermatological",
+        "symptoms": [
+            "dry skin",
+            "cracked skin",
+            "itchy skin"
+        ],
+        "med": "Hydrocortisone / Emollients",
+        "text": "Common symptoms: dry skin, cracked skin, itchy skin."
+    },
+    {
+        "label": "Psoriasis",
+        "category": "Dermatological",
+        "symptoms": [
+            "red patches",
+            "silvery scales"
+        ],
+        "med": "Tazarotene / Calcipotriene",
+        "text": "Common symptoms: red patches, silvery scales."
+    },
+    {
+        "label": "Acne Vulgaris",
+        "category": "Dermatological",
+        "symptoms": [
+            "pimples",
+            "blackheads",
+            "oily skin"
+        ],
+        "med": "Adadapalene / Benzoyl Peroxide",
+        "text": "Common symptoms: pimples, blackheads, oily skin."
+    },
+    {
+        "label": "Migraine",
+        "category": "Neurological",
+        "symptoms": [
+            "throbbing headache",
+            "light sensitivity",
+            "sound sensitivity",
+            "nausea"
+        ],
+        "med": "Sumatriptan / Naproxen",
+        "text": "Common symptoms: throbbing headache, light sensitivity, sound sensitivity, nausea."
+    },
+    {
+        "label": "Epilepsy",
+        "category": "Neurological",
+        "symptoms": [
+            "confusion",
+            "staring spells",
+            "jerking movements"
+        ],
+        "med": "Levetiracetam / Valproate",
+        "text": "Common symptoms: confusion, staring spells, jerking movements."
+    },
+    {
+        "label": "Vertigo",
+        "category": "Neurological",
+        "symptoms": [
+            "spinning sensation",
+            "loss of balance"
+        ],
+        "med": "Meclizine / Betahistine",
+        "text": "Common symptoms: spinning sensation, loss of balance."
+    },
+    {
+        "label": "Diabetes Type 2",
+        "category": "Endocrine",
+        "symptoms": [
+            "thirst",
+            "frequent urination",
+            "blurred vision"
+        ],
+        "med": "Metformin / Insulin",
+        "text": "Common symptoms: thirst, frequent urination, blurred vision."
+    },
+    {
+        "label": "Hypothyroidism",
+        "category": "Endocrine",
+        "symptoms": [
+            "feeling cold",
+            "weight gain",
+            "thinning hair"
+        ],
+        "med": "Levothyroxine",
+        "text": "Common symptoms: feeling cold, weight gain, thinning hair."
+    },
+    {
+        "label": "Hyperthyroidism",
+        "category": "Endocrine",
+        "symptoms": [
+            "rapid heartbeat",
+            "weight loss",
+            "tremors"
+        ],
+        "med": "Methimazole / Propylthiouracil",
+        "text": "Common symptoms: rapid heartbeat, weight loss, tremors."
+    },
+    {
+        "label": "Hypertension",
+        "category": "Cardiovascular",
+        "symptoms": [
+            "morning headaches",
+            "nosebleeds",
+            "irregular heart rhythm"
+        ],
+        "med": "Lisinopril / Atenolol",
+        "text": "Common symptoms: morning headaches, nosebleeds, irregular heart rhythm."
+    },
+    {
+        "label": "Angina",
+        "category": "Cardiovascular",
+        "symptoms": [
+            "chest pressure",
+            "chest pain during activity"
+        ],
+        "med": "Nitroglycerin / Amlodipine",
+        "text": "Common symptoms: chest pressure, chest pain during activity."
+    },
+    {
+        "label": "UTI",
+        "category": "Other",
+        "symptoms": [
+            "burning urination",
+            "constant urge to pee"
+        ],
+        "med": "Nitrofurantoin / Phenazopyridine",
+        "text": "Common symptoms: burning urination, constant urge to pee."
+    },
+    {
+        "label": "Anemia",
+        "category": "Other",
+        "symptoms": [
+            "pale skin",
+            "shortness of breath",
+            "dizziness"
+        ],
+        "med": "Ferrous Sulfate / B12",
+        "text": "Common symptoms: pale skin, shortness of breath, dizziness."
+    },
+    {
+        "label": "Conjunctivitis",
+        "category": "Other",
+        "symptoms": [
+            "red eyes",
+            "itchy eyes",
+            "crusty discharge"
+        ],
+        "med": "Moxifloxacin / Olopatadine",
+        "text": "Common symptoms: red eyes, itchy eyes, crusty discharge."
+    }
+]
