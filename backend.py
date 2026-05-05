@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import List
 from twilio.rest import Client
 import os
+import json
 
 app = FastAPI()
 
@@ -38,18 +39,33 @@ class HealthData(BaseModel):
 @app.post("/api/activate-bot")
 async def activate_bot(data: HealthData):
     try:
-        # Format the message
-        meds_summary = "\n".join(
-            [f"- {m.medicine} (Frequency: {m.frequency}x/day at {m.time})" for m in data.medications]
-        )
+        # SEARCH LOGIC: Find a match based on user symptoms
+        user_symptoms = data.symptoms.lower()
+        match = next((item for item in medical_db if any(s in user_symptoms for s in item['symptoms'])), None)
+        
+        diagnosis_info = ""
+        if match:
+            diagnosis_info = f"\n*Suggested Identification:* {match['label']}\n*Recommended Treatment:* {match['med']}\n"
+
+        # Format the Twilio message body
+        meds_summary = "\n".join([f"- {m.medicine} ({m.frequency}x/day at {m.time})" for m in data.medications])
         
         message_body = (
-            f"🚨 *HealthBot Activated!* 🚨\n\n"
-            f"Symptoms: {data.symptoms}\n"
-            f"Allergies: {data.allergies}\n\n"
-            f"Your Medication Schedule:\n{meds_summary}\n\n"
-            f"We will message you 1 hour before and call 15 minutes before dosing."
+            f"🚨 *HealthBot Activated!* 🚨\n"
+            f"{diagnosis_info}\n" # Injected diagnosis
+            f"Patient Allergies: {data.allergies}\n"
+            f"Current Schedule:\n{meds_summary}\n\n"
+            f"Reminders scheduled."
         )
+
+        message = client.messages.create(
+            body=message_body,
+            from_=TWILIO_WHATSAPP_NUMBER,
+            to=f"whatsapp:+{data.whatsapp}"
+        )
+        return {"status": "success", "diagnosis": match['label'] if match else "None"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
         # Send via Twilio WhatsApp API
         message = client.messages.create(
