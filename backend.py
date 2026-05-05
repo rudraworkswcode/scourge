@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import List
 from twilio.rest import Client
 import os
-import json
+from telegram import Bot
 
 app = FastAPI()
 
@@ -36,10 +36,17 @@ class HealthData(BaseModel):
     emergency: str
     medications: List[Medication]
 
+# Telegram Credentials
+TELEGRAM_TOKEN = "your_telegram_bot_token"
+# Note: You need the user's Chat ID. For testing, you can find yours via @userinfobot
+TELEGRAM_CHAT_ID = "your_personal_chat_id" 
+
+telegram_bot = Bot(token=TELEGRAM_TOKEN)
+
 @app.post("/api/activate-bot")
 async def activate_bot(data: HealthData):
     try:
-        # SEARCH LOGIC: Find a match based on user symptoms
+        # 1. Search logic (already in your code)
         user_symptoms = data.symptoms.lower()
         match = next((item for item in medical_db if any(s in user_symptoms for s in item['symptoms'])), None)
         
@@ -47,23 +54,23 @@ async def activate_bot(data: HealthData):
         if match:
             diagnosis_info = f"\n*Suggested Identification:* {match['label']}\n*Recommended Treatment:* {match['med']}\n"
 
-        # Format the Twilio message body
+        # 2. Format the message
         meds_summary = "\n".join([f"- {m.medicine} ({m.frequency}x/day at {m.time})" for m in data.medications])
         
         message_body = (
-            f"🚨 *HealthBot Activated!* 🚨\n"
-            f"{diagnosis_info}\n" # Injected diagnosis
+            f"🚨 HealthBot Activated! 🚨\n"
+            f"{diagnosis_info}\n"
             f"Patient Allergies: {data.allergies}\n"
             f"Current Schedule:\n{meds_summary}\n\n"
-            f"Reminders scheduled."
+            f"Reminders scheduled via WhatsApp and Telegram."
         )
 
-        message = client.messages.create(
-            body=message_body,
-            from_=TWILIO_WHATSAPP_NUMBER,
-            to=f"whatsapp:+{data.whatsapp}"
-        )
+        # 4. Send Telegram Message
+        # Telegram sends messages asynchronously
+        await telegram_bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message_body, parse_mode='Markdown')
+
         return {"status": "success", "diagnosis": match['label'] if match else "None"}
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
