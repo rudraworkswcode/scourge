@@ -1,520 +1,964 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Symptom Checker</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        .bot-link {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    background: #1a1a18;
-    color: #ffffff;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transition: transform 0.2s;
-    z-index: 1000;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HealthBot — Symptom Checker & Medication Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sky: #0ea5e9;
+      --sky-dark: #0284c7;
+      --sky-light: #e0f2fe;
+      --sky-text: #0369a1;
+      --slate-900: #0f172a;
+      --slate-700: #334155;
+      --slate-500: #64748b;
+      --slate-400: #94a3b8;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --white: #ffffff;
+      --red: #ef4444;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--slate-50);
+      min-height: 100vh;
+      color: var(--slate-900);
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--white);
+      border-bottom: 0.5px solid var(--slate-200);
+      padding: 1rem 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-icon {
+      background: var(--sky);
+      color: var(--white);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .nav-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--slate-900);
+    }
+    .nav-badge {
+      font-size: 11px;
+      font-weight: 500;
+      background: var(--sky-light);
+      color: var(--sky-text);
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 0.5px solid #bae6fd;
+    }
+
+    /* ── STEP INDICATOR ── */
+    .steps-bar {
+      max-width: 720px;
+      margin: 2rem auto 0;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+    .step-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid var(--slate-200);
+      background: var(--white);
+      color: var(--slate-400);
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+    .step-circle.active {
+      border-color: var(--sky);
+      background: var(--sky);
+      color: var(--white);
+    }
+    .step-circle.done {
+      border-color: #22c55e;
+      background: #22c55e;
+      color: var(--white);
+    }
+    .step-label {
+      font-size: 12px;
+      color: var(--slate-400);
+      font-weight: 400;
+      transition: color 0.3s;
+    }
+    .step-label.active { color: var(--sky-text); font-weight: 500; }
+    .step-label.done { color: #16a34a; }
+    .step-connector {
+      flex: 1;
+      height: 1px;
+      background: var(--slate-200);
+      margin: 0 8px;
+      transition: background 0.4s;
+    }
+    .step-connector.done { background: #22c55e; }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* ── SECTION HEADER ── */
+    .section-header {
+      margin-bottom: 2rem;
+    }
+    .section-header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 30px;
+      font-weight: 400;
+      color: var(--slate-900);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .section-header h1 span { color: var(--sky); }
+    .section-header p {
+      font-size: 14px;
+      color: var(--slate-500);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white);
+      border: 0.5px solid var(--slate-200);
+      border-radius: 16px;
+      padding: 1.75rem;
+      margin-bottom: 1rem;
+    }
+
+    /* ── INPUT STYLES ── */
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--slate-500);
+      margin-bottom: 6px;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="time"] {
+      width: 100%;
+      padding: 10px 14px;
+      border: 0.5px solid var(--slate-200);
+      border-radius: 10px;
+      background: var(--slate-50);
+      color: var(--slate-900);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="time"]:focus {
+      border-color: var(--sky);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(14,165,233,0.1);
+    }
+    .input-prefix {
+      position: relative;
+    }
+    .input-prefix span {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--slate-400);
+      font-size: 14px;
+      font-weight: 500;
+      pointer-events: none;
+    }
+    .input-prefix input { padding-left: 26px; }
+    .field-hint {
+      font-size: 11px;
+      color: var(--slate-400);
+      margin-top: 4px;
+      font-weight: 300;
+      font-style: italic;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    /* ── SYMPTOM CHECKER ── */
+    .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .sym-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 0.5px solid var(--slate-200);
+      border-radius: 10px;
+      background: var(--slate-50);
+      color: var(--slate-900);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .sym-input:focus { border-color: var(--sky); background: var(--white); }
+
+    .btn-add {
+      padding: 10px 16px;
+      border: 0.5px solid var(--slate-200);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--slate-700);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-add:hover { background: var(--slate-100); }
+
+    .tags-area { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; margin-bottom: 12px; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      background: var(--sky-light);
+      border: 0.5px solid #bae6fd;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--sky-text);
+    }
+    .tag-x { cursor: pointer; font-size: 14px; line-height: 1; color: var(--sky-text); opacity: 0.6; }
+    .tag-x:hover { opacity: 1; }
+
+    .quick-label { font-size: 11px; color: var(--slate-400); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .quick-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 1.5rem; }
+    .chip {
+      padding: 4px 10px;
+      border: 0.5px solid var(--slate-200);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--slate-500);
+      cursor: pointer;
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+    .chip:hover { border-color: var(--sky); color: var(--sky-text); background: var(--sky-light); }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      background: var(--sky);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover { background: var(--sky-dark); }
+    .btn-primary:active { transform: scale(0.99); }
+    .btn-primary:disabled { opacity: 0.35; cursor: default; }
+
+    .btn-outline {
+      padding: 10px 18px;
+      border: 0.5px solid var(--slate-200);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--slate-700);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-outline:hover { border-color: var(--sky); color: var(--sky-text); }
+
+    /* ── DIAGNOSIS RESULTS ── */
+    .results-section { display: none; }
+    .results-section.visible { display: block; }
+
+    .result-count {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      color: var(--slate-900);
+      margin-bottom: 12px;
+    }
+
+    .disease-card {
+      background: var(--white);
+      border: 0.5px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .disease-card:hover { border-color: rgba(14,165,233,0.4); }
+    .disease-card.expanded { border-color: var(--sky); }
+
+    .dcard-header { display: flex; align-items: center; justify-content: space-between; }
+    .dcard-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .dcard-name { font-size: 14px; font-weight: 500; color: var(--slate-900); }
+    .cat-badge {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+    .cat-Respiratory    { background: #e0f2fe; color: #0369a1; }
+    .cat-Digestive      { background: #dcfce7; color: #166534; }
+    .cat-Infectious     { background: #fef3c7; color: #92400e; }
+    .cat-Dermatological { background: #fce7f3; color: #9d174d; }
+    .cat-Neurological   { background: #ede9fe; color: #5b21b6; }
+    .cat-Endocrine      { background: #d1fae5; color: #065f46; }
+    .cat-Cardiovascular { background: #fee2e2; color: #991b1b; }
+    .cat-Other          { background: #f1f5f9; color: #475569; }
+
+    .score-dots { display: flex; gap: 3px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--slate-200); }
+    .dot.filled { background: var(--sky); }
+    .expand-icon { font-size: 11px; color: var(--slate-400); margin-left: 6px; }
+
+    .dcard-body { display: none; margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--slate-100); }
+    .dcard-body.open { display: block; }
+    .det-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--slate-400); margin-bottom: 4px; margin-top: 10px; }
+    .det-label:first-child { margin-top: 0; }
+    .det-text { font-size: 13px; color: var(--slate-700); line-height: 1.6; }
+    .med-pill {
+      display: inline-block;
+      padding: 3px 8px;
+      background: var(--slate-100);
+      border: 0.5px solid var(--slate-200);
+      border-radius: 999px;
+      font-size: 11px;
+      color: var(--slate-700);
+      margin: 2px 2px 2px 0;
+    }
+    .det-note { font-size: 11px; color: var(--slate-400); margin-top: 6px; font-style: italic; }
+
+    /* ── TRANSITION BANNER ── */
+    .transition-banner {
+      display: none;
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      border-radius: 14px;
+      padding: 1.5rem 1.75rem;
+      margin: 1.5rem 0;
+      color: var(--white);
+      animation: fadeSlideIn 0.5s ease both;
+    }
+    .transition-banner.visible { display: flex; align-items: center; gap: 16px; }
+    .banner-icon { font-size: 28px; flex-shrink: 0; }
+    .banner-text h3 { font-family: 'DM Serif Display', serif; font-size: 18px; font-weight: 400; margin-bottom: 4px; }
+    .banner-text p { font-size: 13px; opacity: 0.85; line-height: 1.5; font-weight: 300; }
+    .banner-arrow { margin-left: auto; flex-shrink: 0; }
+    .banner-arrow button {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      color: var(--white);
+      padding: 8px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.15s;
+    }
+    .banner-arrow button:hover { background: rgba(255,255,255,0.3); }
+
+    /* ── TELEGRAM SECTION ── */
+    .tg-section { display: none; }
+    .tg-section.visible {
+      display: block;
+      animation: fadeSlideIn 0.5s ease both;
+    }
+
+    .section-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: var(--sky-light);
+      color: var(--sky-text);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    .subsection-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--slate-900);
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .tg-info-box {
+      background: var(--sky-light);
+      border: 0.5px solid #bae6fd;
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 1rem;
+    }
+    .tg-info-box i { color: var(--sky); margin-top: 1px; font-size: 14px; }
+    .tg-info-box p { font-size: 12px; color: var(--sky-text); line-height: 1.6; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 540px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    @media (max-width: 600px) { .grid-3 { grid-template-columns: 1fr; } }
+
+    /* ── MED ENTRIES ── */
+    .med-entry {
+      background: var(--slate-50);
+      border: 0.5px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .med-remove {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--slate-400);
+      cursor: pointer;
+      font-size: 13px;
+      transition: color 0.15s;
+      padding: 2px;
+    }
+    .med-remove:hover { color: var(--red); }
+
+    .btn-add-med {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border: 0.5px solid var(--slate-200);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--sky-text);
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-add-med:hover { background: var(--sky-light); border-color: #bae6fd; }
+
+    .form-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 1.5rem;
+      border-top: 0.5px solid var(--slate-100);
+      margin-top: 0.5rem;
+    }
+
+    .btn-submit {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 10px;
+      background: var(--sky);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-submit:hover { background: var(--sky-dark); }
+    .btn-submit:active { transform: scale(0.98); }
+
+    /* ── SUCCESS ── */
+    .success-card {
+      display: none;
+      background: #f0fdf4;
+      border: 0.5px solid #bbf7d0;
+      border-radius: 14px;
+      padding: 2rem;
+      text-align: center;
+      animation: fadeSlideIn 0.4s ease both;
+    }
+    .success-card.visible { display: block; }
+    .success-icon { font-size: 40px; margin-bottom: 12px; }
+    .success-card h3 { font-family: 'DM Serif Display', serif; font-size: 22px; color: #166534; margin-bottom: 8px; }
+    .success-card p { font-size: 14px; color: #4ade80; color: #16a34a; line-height: 1.6; font-weight: 300; }
+
+    /* ── DISCLAIMER ── */
+    .disclaimer {
+      font-size: 11px;
+      color: var(--slate-400);
+      border-top: 0.5px solid var(--slate-100);
+      padding-top: 1rem;
+      margin-top: 1.5rem;
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--white);
+      border-top: 0.5px solid var(--slate-100);
+      padding: 1.25rem;
+      text-align: center;
+      font-size: 11px;
+      color: var(--slate-400);
+      letter-spacing: 0.02em;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <div class="nav-icon"><i class="fa-brands fa-telegram"></i></div>
+      <span class="nav-title">HealthBot</span>
+    </div>
+    <span class="nav-badge">Symptom Checker + Telegram</span>
+  </div>
+</nav>
+
+<!-- Step indicator -->
+<div class="steps-bar" id="stepsBar">
+  <div class="step-item">
+    <div class="step-circle active" id="stepCircle1">1</div>
+    <span class="step-label active" id="stepLabel1">Check Symptoms</span>
+  </div>
+  <div class="step-connector" id="stepConn1"></div>
+  <div class="step-item">
+    <div class="step-circle" id="stepCircle2">2</div>
+    <span class="step-label" id="stepLabel2">Setup Bot</span>
+  </div>
+</div>
+
+<main>
+
+  <!-- ══ SECTION 1: SYMPTOM CHECKER ══ -->
+  <div id="symSection">
+    <div class="section-header" style="margin-top:1.5rem;">
+      <h1>Check Your <span>Symptoms</span></h1>
+      <p>Add your current symptoms to see possible conditions and suggested medications.</p>
+    </div>
+
+    <div class="card">
+      <div class="input-row">
+        <input class="sym-input" id="symInput" type="text" placeholder="Type a symptom, e.g. fever, headache…" />
+        <button class="btn-add" onclick="addSymptom()">+ Add</button>
+      </div>
+      <div class="tags-area" id="tagsArea"></div>
+      <p class="quick-label">Common symptoms</p>
+      <div class="quick-chips" id="quickChips"></div>
+      <button class="btn-primary" id="diagnoseBtn" onclick="runDiagnosis()" disabled>Analyse symptoms</button>
+    </div>
+
+    <!-- Results -->
+    <div class="results-section" id="resultsSection">
+      <p class="result-count" id="resultCount"></p>
+      <div id="resultsList"></div>
+      <p class="disclaimer">This tool is for informational purposes only. Always consult a qualified healthcare professional for diagnosis and treatment.</p>
+
+      <!-- Transition banner -->
+      <div class="transition-banner" id="transitionBanner">
+        <div class="banner-icon"><i class="fa-brands fa-telegram"></i></div>
+        <div class="banner-text">
+          <h3>Set up medication reminders</h3>
+          <p>Based on your results, configure your Telegram HealthBot to send daily medication alerts.</p>
+        </div>
+        <div class="banner-arrow">
+          <button onclick="showTelegramSection()">Continue ↓</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 2: TELEGRAM SETUP ══ -->
+  <div class="tg-section" id="tgSection">
+
+    <div class="section-header" style="margin-top:2rem;">
+      <h1>Setup <span>Telegram Bot</span></h1>
+      <p>Configure your personal HealthBot to send medication reminders and emergency alerts via Telegram.</p>
+    </div>
+
+    <!-- 1. Health Info -->
+    <div class="card">
+      <div class="subsection-title">
+        <span class="section-num">1</span> Patient Health Information
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>Current Disease or Symptoms</label>
+          <input type="text" id="tgSymptoms" placeholder="e.g., Fever, cough, diarrhea" />
+        </div>
+        <div>
+          <label>Conditions or Allergies</label>
+          <input type="text" id="tgAllergies" placeholder="e.g., Allergic to iron medicines" />
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Telegram Details -->
+    <div class="card">
+      <div class="subsection-title">
+        <span class="section-num">2</span> Telegram Contact Details
+      </div>
+      <div class="grid-2">
+        <div>
+          <label>Your Telegram Username</label>
+          <div class="input-prefix">
+            <span>@</span>
+            <input type="text" id="tgUser" placeholder="yourusername" />
+          </div>
+          <p class="field-hint">You must start the bot first to receive messages</p>
+        </div>
+        <div>
+          <label>Emergency Contact Username</label>
+          <div class="input-prefix">
+            <span>@</span>
+            <input type="text" id="tgEmergency" placeholder="emergencycontact" />
+          </div>
+          <p class="field-hint">They must also start the bot to receive alerts</p>
+        </div>
+      </div>
+      <div class="tg-info-box">
+        <i class="fa-brands fa-telegram"></i>
+        <p>Both you and your emergency contact must open <strong>@YourHealthBot</strong> on Telegram and tap <strong>Start</strong> before the bot can message you.</p>
+      </div>
+    </div>
+
+    <!-- 3. Medications -->
+    <div class="card">
+      <div class="subsection-title" style="justify-content: space-between;">
+        <span style="display:flex;align-items:center;">
+          <span class="section-num">3</span> Medication Schedule
+        </span>
+        <button class="btn-add-med" onclick="addMedEntry()">
+          <i class="fa-solid fa-plus" style="font-size:11px;"></i> Add Medicine
+        </button>
+      </div>
+
+      <div id="medEntries">
+        <div class="med-entry">
+          <div class="grid-3">
+            <div>
+              <label>Medicine Name</label>
+              <input type="text" name="medName" placeholder="e.g., Paracetamol" />
+            </div>
+            <div>
+              <label>Times per Day</label>
+              <input type="number" name="frequency" min="1" max="12" placeholder="e.g., 3" />
+            </div>
+            <div>
+              <label>Time of Day</label>
+              <input type="time" name="time" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <button class="btn-outline" onclick="backToSymptoms()">← Back to results</button>
+        <button class="btn-submit" onclick="activateBot()">
+          Activate Bot <i class="fa-solid fa-arrow-right" style="font-size:12px;"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Success -->
+    <div class="success-card" id="successCard">
+      <div class="success-icon">✓</div>
+      <h3>Bot Activated Successfully</h3>
+      <p>Your HealthBot is now configured. You'll receive medication reminders and your emergency contact will be alerted if you miss doses. Check your Telegram.</p>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>&copy; 2026 HealthBot — Keeping your health on schedule.</footer>
+
+<script>
+/* ── DISEASE DATABASE ── */
+const DB = {
+  "Common Cold":        { med: "Pseudoephedrine / Cetirizine",            symp: "Stuffy nose, sneezing, scratchy throat, and a mild cough.",                          cat: "Respiratory",    kw: ["stuffy nose","sneezing","scratchy throat","mild cough","cough"] },
+  "Influenza (Flu)":    { med: "Oseltamivir (Tamiflu) / Acetaminophen",   symp: "High fever, body aches, extreme fatigue, and dry cough.",                           cat: "Respiratory",    kw: ["high fever","body aches","extreme fatigue","dry cough","fever","cough","fatigue"] },
+  "Bronchitis":         { med: "Guaifenesin / Bromhexine",                 symp: "Persistent cough with clear or yellow phlegm and chest discomfort.",                cat: "Respiratory",    kw: ["persistent cough","phlegm","chest discomfort","cough"] },
+  "Asthma":             { med: "Albuterol / Fluticasone",                  symp: "Shortness of breath, wheezing sounds, and chest tightness.",                        cat: "Respiratory",    kw: ["shortness of breath","wheezing","chest tightness"] },
+  "Pneumonia":          { med: "Amoxicillin / Azithromycin",               symp: "Deep cough, fever, chills, and difficulty breathing.",                              cat: "Respiratory",    kw: ["deep cough","fever","chills","difficulty breathing","cough"] },
+  "Sinusitis":          { med: "Fluticasone Propionate / Oxymetazoline",   symp: "Pressure behind the eyes, thick nasal discharge, and facial pain.",                 cat: "Respiratory",    kw: ["pressure behind eyes","nasal discharge","facial pain","headache"] },
+  "GERD (Acid Reflux)": { med: "Omeprazole / Antacids",                    symp: "Heartburn after eating and a sour or bitter taste in the mouth.",                   cat: "Digestive",      kw: ["heartburn","sour taste","bitter taste","nausea"] },
+  "Gastroenteritis":    { med: "Oral Rehydration Salts / Ondansetron",     symp: "Stomach cramps, watery diarrhea, and occasional vomiting.",                         cat: "Digestive",      kw: ["stomach cramps","watery diarrhea","vomiting","nausea","diarrhea"] },
+  "Peptic Ulcer":       { med: "Famotidine / Clarithromycin",              symp: "Burning stomach pain, feeling bloated, and intolerance to fatty foods.",             cat: "Digestive",      kw: ["burning stomach pain","bloated","fatty food intolerance","nausea"] },
+  "Irritable Bowel (IBS)": { med: "Hyoscyamine / Psyllium Husk",          symp: "Abdominal bloating, gas, and alternating constipation or diarrhea.",                 cat: "Digestive",      kw: ["bloating","gas","constipation","diarrhea","stomach cramps"] },
+  "Hepatitis":          { med: "Tenofovir / Interferon",                   symp: "Yellowish skin or eyes, dark urine, and intense fatigue.",                          cat: "Digestive",      kw: ["yellow skin","yellow eyes","dark urine","fatigue","nausea"] },
+  "Tuberculosis":       { med: "Rifampin / Isoniazid",                     symp: "Chronic cough with blood, night sweats, and weight loss.",                          cat: "Infectious",     kw: ["chronic cough","blood in cough","night sweats","weight loss","cough","fatigue"] },
+  "Dengue":             { med: "Acetaminophen (Paracetamol)",              symp: "Severe pain behind the eyes, high fever, and joint aches.",                         cat: "Infectious",     kw: ["pain behind eyes","high fever","joint aches","fever","rash"] },
+  "Malaria":            { med: "Artemether / Lumefantrine",                 symp: "Cyclical high fever, shaking chills, and profuse sweating.",                        cat: "Infectious",     kw: ["cyclical fever","shaking chills","sweating","fever","fatigue"] },
+  "Typhoid":            { med: "Ciprofloxacin / Ceftriaxone",              symp: "Sustained high fever, weakness, stomach pain, and headache.",                       cat: "Infectious",     kw: ["sustained fever","weakness","stomach pain","headache","fever","fatigue"] },
+  "Chickenpox":         { med: "Diphenhydramine / Acyclovir",              symp: "Itchy red blisters all over the body accompanied by a fever.",                      cat: "Infectious",     kw: ["itchy blisters","red spots","fever","rash"] },
+  "Eczema":             { med: "Hydrocortisone / Emollients",              symp: "Patches of skin that are dry, cracked, and extremely itchy.",                       cat: "Dermatological", kw: ["dry skin","cracked skin","itchy skin","rash"] },
+  "Psoriasis":          { med: "Tazarotene / Calcipotriene",               symp: "Red patches of skin covered with thick, silvery scales.",                           cat: "Dermatological", kw: ["red patches","silvery scales","rash"] },
+  "Acne Vulgaris":      { med: "Adapalene / Benzoyl Peroxide",             symp: "Persistent pimples, blackheads, and oily skin on the face or back.",                cat: "Dermatological", kw: ["pimples","blackheads","oily skin","rash"] },
+  "Migraine":           { med: "Sumatriptan / Naproxen",                   symp: "Throbbing headache on one side with light and sound sensitivity.",                  cat: "Neurological",   kw: ["throbbing headache","light sensitivity","sound sensitivity","nausea","headache","dizziness"] },
+  "Epilepsy":           { med: "Levetiracetam / Valproate",                symp: "Temporary confusion, staring spells, or uncontrollable jerking movements.",         cat: "Neurological",   kw: ["confusion","staring spells","jerking movements"] },
+  "Vertigo":            { med: "Meclizine / Betahistine",                  symp: "A sensation that the room is spinning, causing loss of balance.",                   cat: "Neurological",   kw: ["spinning sensation","loss of balance","dizziness","nausea"] },
+  "Diabetes Type 2":    { med: "Metformin / Insulin",                      symp: "Constant thirst, frequent urination, and blurred vision.",                          cat: "Endocrine",      kw: ["thirst","frequent urination","blurred vision","fatigue"] },
+  "Hypothyroidism":     { med: "Levothyroxine",                            symp: "Feeling cold all the time, weight gain, and thinning hair.",                        cat: "Endocrine",      kw: ["feeling cold","weight gain","thinning hair","fatigue"] },
+  "Hyperthyroidism":    { med: "Methimazole / Propylthiouracil",           symp: "Rapid heartbeat, sudden weight loss, and tremors in the hands.",                    cat: "Endocrine",      kw: ["rapid heartbeat","weight loss","tremors"] },
+  "Hypertension":       { med: "Lisinopril / Atenolol",                    symp: "Frequent morning headaches, nosebleeds, and irregular heart rhythms.",              cat: "Cardiovascular", kw: ["morning headaches","nosebleeds","irregular heart rhythm","headache","dizziness"] },
+  "Angina":             { med: "Nitroglycerin / Amlodipine",               symp: "Squeezing pain or pressure in the chest during physical activity.",                 cat: "Cardiovascular", kw: ["chest pressure","chest pain during activity","chest pain","shortness of breath"] },
+  "UTI":                { med: "Nitrofurantoin / Phenazopyridine",         symp: "Burning sensation when peeing and a constant urge to go.",                          cat: "Other",          kw: ["burning urination","constant urge to pee","fever"] },
+  "Anemia":             { med: "Ferrous Sulfate / B12",                    symp: "Pale skin, shortness of breath, and feeling cold or dizzy.",                        cat: "Other",          kw: ["pale skin","shortness of breath","dizziness","fatigue"] },
+  "Conjunctivitis":     { med: "Moxifloxacin / Olopatadine",              symp: "Redness in the white of the eye, itching, and crusty discharge.",                   cat: "Other",          kw: ["red eyes","itchy eyes","crusty discharge"] }
+};
+
+const QUICK_SYMPTOMS = ["fever","cough","headache","fatigue","nausea","dizziness","chest pain","shortness of breath","rash","vomiting"];
+
+let symptoms = [];
+
+/* ── INIT ── */
+(function init() {
+  const qc = document.getElementById('quickChips');
+  QUICK_SYMPTOMS.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.textContent = s;
+    b.onclick = () => { document.getElementById('symInput').value = s; addSymptom(); };
+    qc.appendChild(b);
+  });
+  document.getElementById('symInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addSymptom();
+  });
+})();
+
+/* ── SYMPTOM CHECKER ── */
+function addSymptom() {
+  const inp = document.getElementById('symInput');
+  const val = inp.value.trim().toLowerCase();
+  if (!val || symptoms.includes(val)) { inp.value = ''; return; }
+  symptoms.push(val);
+  inp.value = '';
+  renderTags();
+  document.getElementById('diagnoseBtn').disabled = false;
+  document.getElementById('resultsSection').classList.remove('visible');
+  document.getElementById('transitionBanner').classList.remove('visible');
 }
 
-.bot-link:hover { transform: scale(1.1); }
-
-/* Tooltip style */
-.bot-link::after {
-    content: "Message Bot";
-    position: absolute;
-    right: 70px;
-    background: #1a1a18;
-    color: white;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    white-space: nowrap;
-    opacity: 0;
-    transition: opacity 0.2s;
-    pointer-events: none;
+function removeSymptom(s) {
+  symptoms = symptoms.filter(x => x !== s);
+  renderTags();
+  document.getElementById('diagnoseBtn').disabled = symptoms.length === 0;
 }
 
-.bot-link:hover::after { opacity: 1; }
-        body {
-        font-family: 'DM Sans', sans-serif;
-        background: #f5f4f0;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        padding: 3rem 1rem;
-        color: #1a1a18;
-        }
+function renderTags() {
+  document.getElementById('tagsArea').innerHTML = symptoms.map(s =>
+    `<span class="tag">${s}<span class="tag-x" onclick="removeSymptom('${s.replace(/'/g,"\\'")}')">×</span></span>`
+  ).join('');
+}
 
-        .app {
-        background: #ffffff;
-        border-radius: 16px;
-        border: 0.5px solid rgba(0,0,0,0.12);
-        padding: 2.5rem 2rem;
-        width: 100%;
-        max-width: 680px;
-        height: fit-content;
-        }
-
-        .app-title {
-        font-family: 'DM Serif Display', serif;
-        font-size: 32px;
-        font-weight: 400;
-        color: #1a1a18;
-        margin-bottom: 4px;
-        }
-
-        .app-sub {
-        font-size: 13px;
-        color: #6b6b68;
-        margin-bottom: 2rem;
-        font-weight: 300;
-        }
-
-        .input-row {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 12px;
-        }
-
-        .symptom-input {
-        flex: 1;
-        padding: 10px 14px;
-        border: 0.5px solid rgba(0,0,0,0.25);
-        border-radius: 8px;
-        background: #fff;
-        color: #1a1a18;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 14px;
-        outline: none;
-        transition: border-color 0.15s;
-        }
-
-        .symptom-input:focus { border-color: rgba(0,0,0,0.5); }
-
-        .add-btn {
-        padding: 10px 18px;
-        border: 0.5px solid rgba(0,0,0,0.25);
-        border-radius: 8px;
-        background: transparent;
-        color: #1a1a18;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 14px;
-        cursor: pointer;
-        transition: background 0.15s;
-        white-space: nowrap;
-        }
-
-        .add-btn:hover { background: #f5f4f0; }
-
-        .tags-area {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        min-height: 32px;
-        margin-bottom: 1rem;
-        }
-
-        .tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 5px 10px;
-        background: #f5f4f0;
-        border: 0.5px solid rgba(0,0,0,0.12);
-        border-radius: 999px;
-        font-size: 13px;
-        color: #1a1a18;
-        }
-
-        .tag-remove {
-        cursor: pointer;
-        color: #6b6b68;
-        font-size: 15px;
-        line-height: 1;
-        }
-
-        .tag-remove:hover { color: #1a1a18; }
-
-        .quick-label {
-        font-size: 12px;
-        color: #6b6b68;
-        margin-bottom: 6px;
-        }
-
-        .quick-chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-bottom: 1.5rem;
-        }
-
-        .chip {
-        padding: 4px 10px;
-        border: 0.5px solid rgba(0,0,0,0.15);
-        border-radius: 999px;
-        font-size: 12px;
-        color: #6b6b68;
-        cursor: pointer;
-        background: transparent;
-        font-family: 'DM Sans', sans-serif;
-        transition: all 0.15s;
-        }
-
-        .chip:hover {
-        border-color: rgba(0,0,0,0.4);
-        color: #1a1a18;
-        background: #f5f4f0;
-        }
-
-        .diagnose-btn {
-        width: 100%;
-        padding: 12px;
-        border: none;
-        border-radius: 8px;
-        background: #1a1a18;
-        color: #ffffff;
-        font-family: 'DM Sans', sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: opacity 0.15s;
-        margin-bottom: 2rem;
-        }
-
-        .diagnose-btn:hover { opacity: 0.85; }
-        .diagnose-btn:disabled { opacity: 0.4; cursor: default; }
-
-        .divider {
-        border: none;
-        border-top: 0.5px solid rgba(0,0,0,0.12);
-        margin-bottom: 1.5rem;
-        }
-
-        .results-title {
-        font-family: 'DM Serif Display', serif;
-        font-size: 20px;
-        font-weight: 400;
-        color: #1a1a18;
-        margin-bottom: 1rem;
-        }
-
-        .no-results {
-        font-size: 14px;
-        color: #6b6b68;
-        padding: 1rem;
-        text-align: center;
-        }
-
-        .disease-card {
-        background: #ffffff;
-        border: 0.5px solid rgba(0,0,0,0.12);
-        border-radius: 12px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 10px;
-        cursor: pointer;
-        transition: border-color 0.15s;
-        }
-
-        .disease-card:hover { border-color: rgba(0,0,0,0.25); }
-        .disease-card.expanded { border-color: rgba(0,0,0,0.4); }
-
-        .card-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        }
-
-        .card-left {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-        }
-
-        .card-name {
-        font-size: 15px;
-        font-weight: 500;
-        color: #1a1a18;
-        }
-
-        .card-cat {
-        font-size: 11px;
-        padding: 3px 8px;
-        border-radius: 999px;
-        font-weight: 400;
-        }
-
-        .cat-Respiratory    { background: #E6F1FB; color: #0C447C; }
-        .cat-Digestive      { background: #EAF3DE; color: #27500A; }
-        .cat-Infectious     { background: #FAEEDA; color: #633806; }
-        .cat-Dermatological { background: #FBEAF0; color: #72243E; }
-        .cat-Neurological   { background: #EEEDFE; color: #3C3489; }
-        .cat-Endocrine      { background: #E1F5EE; color: #085041; }
-        .cat-Cardiovascular { background: #FCEBEB; color: #791F1F; }
-        .cat-Other          { background: #F1EFE8; color: #444441; }
-
-        .score-badge {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-shrink: 0;
-        }
-
-        .score-dots { display: flex; gap: 3px; }
-
-        .dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: rgba(0,0,0,0.15);
-        }
-
-        .dot.filled { background: #1a1a18; }
-
-        .expand-icon {
-        font-size: 12px;
-        color: #6b6b68;
-        margin-left: 4px;
-        }
-
-        .card-body {
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 0.5px solid rgba(0,0,0,0.1);
-        display: none;
-        }
-
-        .card-body.open { display: block; }
-
-        .detail-label {
-        font-size: 11px;
-        font-weight: 500;
-        color: #6b6b68;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        margin-bottom: 4px;
-        margin-top: 10px;
-        }
-
-        .detail-label:first-child { margin-top: 0; }
-
-        .detail-text {
-        font-size: 13px;
-        color: #1a1a18;
-        line-height: 1.6;
-        }
-
-        .med-pill {
-        display: inline-block;
-        padding: 3px 8px;
-        background: #f5f4f0;
-        border: 0.5px solid rgba(0,0,0,0.12);
-        border-radius: 999px;
-        font-size: 12px;
-        color: #1a1a18;
-        margin: 2px 2px 2px 0;
-        }
-
-        .disclaimer {
-        font-size: 11px;
-        color: #6b6b68;
-        border-top: 0.5px solid rgba(0,0,0,0.1);
-        padding-top: 1rem;
-        margin-top: 1.5rem;
-        line-height: 1.6;
-        }
-
-        @media (max-width: 500px) {
-        .app { padding: 1.5rem 1rem; }
-        .app-title { font-size: 26px; }
-        }
-    </style>
-    </head>
-    <body>
-
-    <div class="app">
-    <p class="app-title">Symptom Checker</p>
-    <p class="app-sub">Enter your symptoms to see possible conditions and suggested medications.</p>
-
-    <div class="input-row">
-        <input class="symptom-input" id="symInput" type="text" placeholder="Type a symptom, e.g. fever, headache…" />
-        <button class="add-btn" onclick="addSymptom()">+ Add</button>
-    </div>
-
-    <div class="tags-area" id="tagsArea"></div>
-
-    <p class="quick-label">Common symptoms</p>
-    <div class="quick-chips" id="quickChips"></div>
-
-    <button class="diagnose-btn" id="diagnoseBtn" onclick="runDiagnosis()" disabled>Analyse symptoms</button>
-
-    <div id="resultsSection" style="display:none;">
-        <hr class="divider" />
-        <p class="results-title" id="resultsTitle">Possible conditions</p>
-        <div id="resultsList"></div>
-        <p class="disclaimer">This tool is for informational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional for diagnosis and treatment.</p>
-    </div>
-    </div>
-
-    <script>
-    const DB = {
-    "Common Cold":        { med: "Pseudoephedrine / Cetirizine",            symp: "Stuffy nose, sneezing, scratchy throat, and a mild cough.",                          cat: "Respiratory",    keywords: ["stuffy nose","sneezing","scratchy throat","mild cough"] },
-    "Influenza (Flu)":    { med: "Oseltamivir (Tamiflu) / Acetaminophen",   symp: "High fever, body aches, extreme fatigue, and dry cough.",                           cat: "Respiratory",    keywords: ["high fever","body aches","extreme fatigue","dry cough","fever"] },
-    "Bronchitis":         { med: "Guaifenesin / Bromhexine",                 symp: "Persistent cough with clear or yellow phlegm and chest discomfort.",                cat: "Respiratory",    keywords: ["persistent cough","phlegm","chest discomfort","cough"] },
-    "Asthma":             { med: "Albuterol / Fluticasone",                  symp: "Shortness of breath, wheezing sounds, and chest tightness.",                        cat: "Respiratory",    keywords: ["shortness of breath","wheezing","chest tightness"] },
-    "Pneumonia":          { med: "Amoxicillin / Azithromycin",               symp: "Deep cough, fever, chills, and difficulty breathing.",                              cat: "Respiratory",    keywords: ["deep cough","fever","chills","difficulty breathing","cough"] },
-    "Sinusitis":          { med: "Fluticasone Propionate / Oxymetazoline",   symp: "Pressure behind the eyes, thick nasal discharge, and facial pain.",                 cat: "Respiratory",    keywords: ["pressure behind eyes","nasal discharge","facial pain","headache"] },
-    "GERD (Acid Reflux)": { med: "Omeprazole / Antacids",                    symp: "Heartburn after eating and a sour or bitter taste in the mouth.",                   cat: "Digestive",      keywords: ["heartburn","sour taste","bitter taste","nausea"] },
-    "Gastroenteritis":    { med: "Oral Rehydration Salts / Ondansetron",     symp: "Stomach cramps, watery diarrhea, and occasional vomiting.",                         cat: "Digestive",      keywords: ["stomach cramps","watery diarrhea","vomiting","nausea"] },
-    "Peptic Ulcer":       { med: "Famotidine / Clarithromycin",              symp: "Burning stomach pain, feeling bloated, and intolerance to fatty foods.",             cat: "Digestive",      keywords: ["burning stomach pain","bloated","fatty food intolerance","nausea"] },
-    "Irritable Bowel (IBS)": { med: "Hyoscyamine / Psyllium Husk",          symp: "Abdominal bloating, gas, and alternating constipation or diarrhea.",                 cat: "Digestive",      keywords: ["bloating","gas","constipation","diarrhea","stomach cramps"] },
-    "Hepatitis":          { med: "Tenofovir / Interferon",                   symp: "Yellowish skin or eyes, dark urine, and intense fatigue.",                          cat: "Digestive",      keywords: ["yellow skin","yellow eyes","dark urine","fatigue","nausea"] },
-    "Tuberculosis":       { med: "Rifampin / Isoniazid",                     symp: "Chronic cough with blood, night sweats, and weight loss.",                          cat: "Infectious",     keywords: ["chronic cough","blood in cough","night sweats","weight loss","cough","fatigue"] },
-    "Dengue":             { med: "Acetaminophen (Paracetamol)",              symp: "Severe pain behind the eyes, high fever, and joint aches.",                         cat: "Infectious",     keywords: ["pain behind eyes","high fever","joint aches","fever","rash"] },
-    "Malaria":            { med: "Artemether / Lumefantrine",                 symp: "Cyclical high fever, shaking chills, and profuse sweating.",                        cat: "Infectious",     keywords: ["cyclical fever","shaking chills","sweating","fever","fatigue"] },
-    "Typhoid":            { med: "Ciprofloxacin / Ceftriaxone",              symp: "Sustained high fever, weakness, stomach pain, and headache.",                       cat: "Infectious",     keywords: ["sustained fever","weakness","stomach pain","headache","fever","fatigue"] },
-    "Chickenpox":         { med: "Diphenhydramine / Acyclovir",              symp: "Itchy red blisters all over the body accompanied by a fever.",                      cat: "Infectious",     keywords: ["itchy blisters","red spots","fever","rash"] },
-    "Eczema":             { med: "Hydrocortisone / Emollients",              symp: "Patches of skin that are dry, cracked, and extremely itchy.",                       cat: "Dermatological", keywords: ["dry skin","cracked skin","itchy skin","rash"] },
-    "Psoriasis":          { med: "Tazarotene / Calcipotriene",               symp: "Red patches of skin covered with thick, silvery scales.",                           cat: "Dermatological", keywords: ["red patches","silvery scales","rash"] },
-    "Acne Vulgaris":      { med: "Adapalene / Benzoyl Peroxide",             symp: "Persistent pimples, blackheads, and oily skin on the face or back.",                cat: "Dermatological", keywords: ["pimples","blackheads","oily skin","rash"] },
-    "Migraine":           { med: "Sumatriptan / Naproxen",                   symp: "Throbbing headache on one side with light and sound sensitivity.",                  cat: "Neurological",   keywords: ["throbbing headache","light sensitivity","sound sensitivity","nausea","headache","dizziness"] },
-    "Epilepsy":           { med: "Levetiracetam / Valproate",                symp: "Temporary confusion, staring spells, or uncontrollable jerking movements.",         cat: "Neurological",   keywords: ["confusion","staring spells","jerking movements"] },
-    "Vertigo":            { med: "Meclizine / Betahistine",                  symp: "A sensation that the room is spinning, causing loss of balance.",                   cat: "Neurological",   keywords: ["spinning sensation","loss of balance","dizziness","nausea"] },
-    "Diabetes Type 2":    { med: "Metformin / Insulin",                      symp: "Constant thirst, frequent urination, and blurred vision.",                          cat: "Endocrine",      keywords: ["thirst","frequent urination","blurred vision","fatigue"] },
-    "Hypothyroidism":     { med: "Levothyroxine",                            symp: "Feeling cold all the time, weight gain, and thinning hair.",                        cat: "Endocrine",      keywords: ["feeling cold","weight gain","thinning hair","fatigue"] },
-    "Hyperthyroidism":    { med: "Methimazole / Propylthiouracil",           symp: "Rapid heartbeat, sudden weight loss, and tremors in the hands.",                    cat: "Endocrine",      keywords: ["rapid heartbeat","weight loss","tremors"] },
-    "Hypertension":       { med: "Lisinopril / Atenolol",                    symp: "Frequent morning headaches, nosebleeds, and irregular heart rhythms.",              cat: "Cardiovascular", keywords: ["morning headaches","nosebleeds","irregular heart rhythm","headache","dizziness"] },
-    "Angina":             { med: "Nitroglycerin / Amlodipine",               symp: "Squeezing pain or pressure in the chest during physical activity.",                 cat: "Cardiovascular", keywords: ["chest pressure","chest pain during activity","chest pain","shortness of breath"] },
-    "UTI":                { med: "Nitrofurantoin / Phenazopyridine",         symp: "Burning sensation when peeing and a constant urge to go.",                          cat: "Other",          keywords: ["burning urination","constant urge to pee","fever"] },
-    "Anemia":             { med: "Ferrous Sulfate / B12",                    symp: "Pale skin, shortness of breath, and feeling cold or dizzy.",                        cat: "Other",          keywords: ["pale skin","shortness of breath","dizziness","fatigue"] },
-    "Conjunctivitis":     { med: "Moxifloxacin / Olopatadine",              symp: "Redness in the white of the eye, itching, and crusty discharge.",                   cat: "Other",          keywords: ["red eyes","itchy eyes","crusty discharge"] }
-    };
-
-    const QUICK = ["fever","cough","headache","fatigue","nausea","dizziness","chest pain","shortness of breath","rash","vomiting"];
-
-    let symptoms = [];
-
-    function init() {
-    const qc = document.getElementById('quickChips');
-    QUICK.forEach(s => {
-        const b = document.createElement('button');
-        b.className = 'chip';
-        b.textContent = s;
-        b.onclick = () => { document.getElementById('symInput').value = s; addSymptom(); };
-        qc.appendChild(b);
+function scoreSymptoms() {
+  const scores = {};
+  symptoms.forEach(sym => {
+    Object.entries(DB).forEach(([disease, info]) => {
+      const allText = [...info.kw, info.symp].join(' ').toLowerCase();
+      if (allText.includes(sym)) scores[disease] = (scores[disease] || 0) + 1;
     });
-    document.getElementById('symInput').addEventListener('keydown', e => {
-        if (e.key === 'Enter') addSymptom();
-    });
-    }
+  });
+  return Object.entries(scores).sort((a, b) => b[1] - a[1]);
+}
 
-    function addSymptom() {
-    const inp = document.getElementById('symInput');
-    const val = inp.value.trim().toLowerCase();
-    if (!val || symptoms.includes(val)) { inp.value = ''; return; }
-    symptoms.push(val);
-    inp.value = '';
-    renderTags();
-    document.getElementById('diagnoseBtn').disabled = false;
-    document.getElementById('resultsSection').style.display = 'none';
-    }
+function runDiagnosis() {
+  const results = scoreSymptoms();
+  const maxDots = Math.min(symptoms.length, 5);
+  const list = document.getElementById('resultsList');
+  const count = document.getElementById('resultCount');
 
-    function removeSymptom(s) {
-    symptoms = symptoms.filter(x => x !== s);
-    renderTags();
-    document.getElementById('diagnoseBtn').disabled = symptoms.length === 0;
-    document.getElementById('resultsSection').style.display = 'none';
-    }
+  if (results.length === 0) {
+    count.textContent = 'No matching conditions found';
+    list.innerHTML = '<div class="card" style="text-align:center;color:var(--slate-400);font-size:14px;">Try different or more specific symptoms.</div>';
+  } else {
+    count.textContent = `${results.length} possible condition${results.length !== 1 ? 's' : ''} found`;
+    list.innerHTML = results.map(([name, sc]) => {
+      const info = DB[name];
+      const meds = info.med.split('/').map(m => `<span class="med-pill">${m.trim()}</span>`).join('');
+      const dots = Array.from({ length: maxDots }, (_, i) =>
+        `<span class="dot${i < sc ? ' filled' : ''}"></span>`
+      ).join('');
+      const key = name.replace(/[^a-z0-9]/gi, '_');
+      return `<div class="disease-card" id="dc-${key}" onclick="toggleDCard('${name.replace(/'/g,"\\'")}')">
+        <div class="dcard-header">
+          <div class="dcard-left">
+            <span class="dcard-name">${name}</span>
+            <span class="cat-badge cat-${info.cat}">${info.cat}</span>
+          </div>
+          <div style="display:flex;align-items:center;">
+            <div class="score-dots">${dots}</div>
+            <span class="expand-icon" id="ei-${key}">&#9656;</span>
+          </div>
+        </div>
+        <div class="dcard-body" id="db-${key}">
+          <p class="det-label">Symptoms</p>
+          <p class="det-text">${info.symp}</p>
+          <p class="det-label">Suggested medications</p>
+          <p>${meds}</p>
+          <p class="det-note">Consult a doctor before taking any medication.</p>
+        </div>
+      </div>`;
+    }).join('');
 
-    function renderTags() {
-    const area = document.getElementById('tagsArea');
-    area.innerHTML = symptoms.map(s =>
-        `<span class="tag">${s}<span class="tag-remove" onclick="removeSymptom('${s.replace(/'/g,"\\'")}')">×</span></span>`
-    ).join('');
-    }
+    // Pre-fill symptoms into telegram form
+    document.getElementById('tgSymptoms').value = symptoms.join(', ');
+  }
 
-    function score() {
-    const scores = {};
-    symptoms.forEach(sym => {
-        Object.entries(DB).forEach(([disease, info]) => {
-        const allText = [...info.keywords, info.symp].join(' ').toLowerCase();
-        if (allText.includes(sym)) {
-            scores[disease] = (scores[disease] || 0) + 1;
-        }
-        });
-    });
-    return Object.entries(scores).sort((a, b) => b[1] - a[1]);
-    }
+  document.getElementById('resultsSection').classList.add('visible');
+  document.getElementById('transitionBanner').classList.add('visible');
 
-    function runDiagnosis() {
-    const results = score();
-    const max = symptoms.length;
-    const list = document.getElementById('resultsList');
-    const title = document.getElementById('resultsTitle');
+  // Update step 1 to done
+  document.getElementById('stepCircle1').className = 'step-circle done';
+  document.getElementById('stepCircle1').innerHTML = '✓';
+  document.getElementById('stepLabel1').className = 'step-label done';
 
-    if (results.length === 0) {
-        list.innerHTML = '<p class="no-results">No matching conditions found. Try different or more specific symptoms.</p>';
-    } else {
-        title.textContent = `${results.length} possible condition${results.length !== 1 ? 's' : ''} found`;
-        list.innerHTML = results.map(([name, sc]) => {
-        const info = DB[name];
-        const meds = info.med.split('/').map(m => `<span class="med-pill">${m.trim()}</span>`).join('');
-        const dotCount = Math.min(max, 5);
-        const dots = Array.from({ length: dotCount }, (_, i) =>
-            `<span class="dot${i < sc ? ' filled' : ''}"></span>`
-        ).join('');
-        const key = name.replace(/[^a-z0-9]/gi, '_');
-        return `
-            <div class="disease-card" id="card-${key}" onclick="toggleCard('${name.replace(/'/g,"\\'")}')">
-            <div class="card-header">
-                <div class="card-left">
-                <span class="card-name">${name}</span>
-                <span class="card-cat cat-${info.cat}">${info.cat}</span>
-                </div>
-                <div class="score-badge">
-                <div class="score-dots">${dots}</div>
-                <span class="expand-icon" id="icon-${key}">&#9656;</span>
-                </div>
-            </div>
-            <div class="card-body" id="body-${key}">
-                <p class="detail-label">Symptoms</p>
-                <p class="detail-text">${info.symp}</p>
-                <p class="detail-label">Suggested medications</p>
-                <p>${meds}</p>
-                <p class="detail-text" style="margin-top:6px;font-size:12px;color:#6b6b68;">Consult a doctor before taking any medication.</p>
-            </div>
-            </div>`;
-        }).join('');
-    }
-    document.getElementById('resultsSection').style.display = 'block';
-    }
+  setTimeout(() => {
+    document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
 
-    function toggleCard(name) {
-    const key = name.replace(/[^a-z0-9]/gi, '_');
-    const body = document.getElementById('body-' + key);
-    const icon = document.getElementById('icon-' + key);
-    const card = document.getElementById('card-' + key);
-    const isOpen = body.classList.contains('open');
-    document.querySelectorAll('.card-body.open').forEach(el => el.classList.remove('open'));
-    document.querySelectorAll('.expand-icon').forEach(el => el.innerHTML = '&#9656;');
-    document.querySelectorAll('.disease-card.expanded').forEach(el => el.classList.remove('expanded'));
-    if (!isOpen) {
-        body.classList.add('open');
-        icon.innerHTML = '&#9662;';
-        card.classList.add('expanded');
-    }
-    }
+function toggleDCard(name) {
+  const key = name.replace(/[^a-z0-9]/gi, '_');
+  const body = document.getElementById('db-' + key);
+  const icon = document.getElementById('ei-' + key);
+  const card = document.getElementById('dc-' + key);
+  const isOpen = body.classList.contains('open');
+  document.querySelectorAll('.dcard-body.open').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.expand-icon').forEach(el => { el.innerHTML = '&#9656;'; });
+  document.querySelectorAll('.disease-card.expanded').forEach(el => el.classList.remove('expanded'));
+  if (!isOpen) { body.classList.add('open'); icon.innerHTML = '&#9662;'; card.classList.add('expanded'); }
+}
 
-    init();
-    </script>
-    </body>
-    </html>
+/* ── TELEGRAM SECTION ── */
+function showTelegramSection() {
+  document.getElementById('tgSection').classList.add('visible');
+  document.getElementById('stepConn1').classList.add('done');
+  document.getElementById('stepCircle2').className = 'step-circle active';
+  document.getElementById('stepLabel2').className = 'step-label active';
+  setTimeout(() => {
+    document.getElementById('tgSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function backToSymptoms() {
+  document.getElementById('tgSection').classList.remove('visible');
+  document.getElementById('stepCircle2').className = 'step-circle';
+  document.getElementById('stepLabel2').className = 'step-label';
+  document.getElementById('stepConn1').classList.remove('done');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function addMedEntry() {
+  const container = document.getElementById('medEntries');
+  const div = document.createElement('div');
+  div.className = 'med-entry';
+  div.innerHTML = `
+    <button type="button" class="med-remove" onclick="this.parentElement.remove()">
+      <i class="fa-solid fa-trash-can"></i>
+    </button>
+    <div class="grid-3">
+      <div><label>Medicine Name</label><input type="text" name="medName" placeholder="e.g., Antibiotic" /></div>
+      <div><label>Times per Day</label><input type="number" name="frequency" min="1" max="12" placeholder="e.g., 2" /></div>
+      <div><label>Time of Day</label><input type="time" name="time" /></div>
+    </div>`;
+  container.appendChild(div);
+}
+
+function activateBot() {
+  const sym = document.getElementById('tgSymptoms').value;
+  const allerg = document.getElementById('tgAllergies').value || 'None';
+  const user = document.getElementById('tgUser').value;
+  const emerg = document.getElementById('tgEmergency').value;
+
+  if (!user || !emerg) { alert('Please fill in both Telegram usernames.'); return; }
+
+  const meds = [];
+  document.querySelectorAll('#medEntries .med-entry').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    if (inputs[0].value) {
+      meds.push({ medicine: inputs[0].value, frequency: inputs[1].value, time: inputs[2].value });
+    }
+  });
+
+  console.log('HealthBot Activated:', { symptoms: sym, allergies: allerg, telegram: '@' + user, emergency: '@' + emerg, medications: meds });
+
+  document.getElementById('successCard').classList.add('visible');
+  document.getElementById('stepCircle2').className = 'step-circle done';
+  document.getElementById('stepCircle2').innerHTML = '✓';
+  document.getElementById('stepLabel2').className = 'step-label done';
+
+  setTimeout(() => {
+    document.getElementById('successCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+</script>
+</body>
+</html>
