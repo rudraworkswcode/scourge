@@ -37,9 +37,9 @@ class HealthData(BaseModel):
     medications: List[Medication]
 
 # Telegram Credentials
-TELEGRAM_TOKEN = "your_telegram_bot_token"
+TELEGRAM_TOKEN = "8795699927:AAEzz3a8ZZwx6YNiSr0Q5ppWXHI_HYB4v2Q"
 # Note: You need the user's Chat ID. For testing, you can find yours via @userinfobot
-TELEGRAM_CHAT_ID = "your_personal_chat_id" 
+TELEGRAM_CHAT_ID = "1531807887" 
 
 telegram_bot = Bot(token=TELEGRAM_TOKEN)
 
