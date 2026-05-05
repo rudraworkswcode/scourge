@@ -24,7 +24,40 @@ async function handleSubmit(event) {
         emergency,
         medications: medEntries
     };
+    async function triggerBotMessage(event) {
+    event.preventDefault();
+    
+    if (symptoms.length === 0) {
+        alert("Please add at least one symptom first.");
+        return;
+    }
 
+    // Prepare the data to match your FastAPI "HealthData" model
+    const payload = {
+        symptoms: symptoms.join(", "),
+        allergies: "Not specified", // You can add an input for this later
+        whatsapp: "your_number_here", // Add your verified WhatsApp number
+        emergency: "emergency_number_here",
+        medications: [] // You can populate this if needed
+    };
+
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/activate-bot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            alert("Symptoms sent to HealthBot via WhatsApp & Telegram!");
+        } else {
+            alert("Bot service is currently unavailable.");
+        }
+    } catch (error) {
+        console.error("Connection error:", error);
+        alert("Could not connect to the backend server.");
+    }
+}
     try {
         const response = await fetch('http://127.0.0.1:8000/api/activate-bot', {
             method: 'POST',
